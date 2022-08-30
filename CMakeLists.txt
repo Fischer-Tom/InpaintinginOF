@@ -6,7 +6,4 @@ add_executable(${PROJECT_NAME} main.cpp)
 
 find_package(PNG REQUIRED)
 include_directories(${PNG_INCLUDE_DIR})
-add_subdirectory(Image)
-target_include_directories(${PROJECT_NAME} PUBLIC Image)
-target_link_directories(${PROJECT_NAME} PRIVATE Image/)
-target_link_libraries(${PROJECT_NAME} Image ${PNG_LIBRARY})
+target_link_libraries(${PROJECT_NAME}  ${PNG_LIBRARY})

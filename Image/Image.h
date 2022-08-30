@@ -10,6 +10,7 @@
 #include <pngconf.h>
 #include <pnglibconf.h>
 #include <iostream>
+#include <vector>
 
 template <class T>
 class Image {
@@ -20,8 +21,6 @@ public:
     // copy constructor
     Image(const Image<T>& aCopyFrom);
 
-
-    ~Image();
 
 
     // read PNG into Image
@@ -34,11 +33,10 @@ public:
     inline int getDepth() const;
 
     // operators
-    operator
 
 protected:
-    T *data;
     int width, height, depth;
+
 };
 
 
@@ -61,12 +59,6 @@ Image<T>::Image(const Image<T> &aCopyFrom) {
 template<class T>
 Image<T>::Image() {
     width = height = depth = 0;
-    data = nullptr;
-}
-
-template<class T>
-Image<T>::~Image() {
-    delete [] data;
 }
 
 // Getter and Setter
@@ -113,7 +105,7 @@ void Image<T>::readFromPNG(const char *filename) {
     color_type = png_get_color_type(png, info);
     bit_depth = png_get_bit_depth(png, info);
 
-    data = new T[depth*width*height];
+
 
 
     if(bit_depth == 16)
@@ -158,6 +150,7 @@ void Image<T>::readFromPNG(const char *filename) {
             data[0][i][j] = px[0];
             data[1][i][j] = px[1];
             data[2][i][j] = px[2];
+
         }
     }
     png_destroy_read_struct(&png, &info, nullptr);
@@ -199,6 +192,7 @@ void Image<T>::writeToPNG(const char *filename) {
     // Use png_set_filler().
     //png_set_filler(png, 0, PNG_FILLER_AFTER);
     row_pointers = (png_bytep*)malloc(sizeof(png_bytep)*height);
+    /**
     for (int i=0;i<height;i++) {
         png_bytep row = row_pointers[i];
         for (int j = 0; j < width; j++) {
@@ -207,7 +201,7 @@ void Image<T>::writeToPNG(const char *filename) {
             *row++ = data[2][i][j];
         }
         png_write_row(png, row);
-    }
+    }**/
     png_write_image(png, row_pointers);
     png_write_end(png, nullptr);
 
