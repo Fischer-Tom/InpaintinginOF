@@ -1,1 +1,1 @@
-add_library(Image Image.cpp)
+add_library(Image Image.cpp Derivative.cpp)
