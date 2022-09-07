@@ -34,17 +34,13 @@ public:
     inline int getHeight() const;
     inline int getDepth() const;
 
-    // Derivative Operations
-    inline void setDerivatives(float h = 1);
-
     // operators
     inline T& operator() (int d, int x, int y);
     inline T& operator() (int x, int y);
 
-protected:
+private:
     int width, height, depth;
     float *data;
-    Derivative fx, fy, fxx, fyy, fxy;
 
 };
 
@@ -79,7 +75,7 @@ Image<T>::Image(int channels):width(0),height(0),depth(channels) {
 
 template<class T>
 Image<T>::Image(int width, int height, int channels):width(width),height(height), depth(channels) {
-    data = nullptr;
+    data = (float*)malloc(sizeof(T)*(width+2)*(height+2) * channels);
 }
 
 // Destructor
@@ -153,10 +149,10 @@ void Image<T>::writeToPNG(const std::string& filename) {
     for(int i=0; i<height; i++) {
     row_pointers[i] = (png_byte*)malloc(png_get_rowbytes(png, info));
     }
-    for (int i=1;i<height+1;i++) {
-        png_bytep row = row_pointers[i];
-        for (int j = 1; j < width+1; j++) {
-            png_bytep px = &(row[j * 4]);
+    for (int j=1;j<height+1;j++) {
+        png_bytep row = row_pointers[(j-1)];
+        for (int i = 1; i < width+1; i++) {
+            png_bytep px = &(row[(i-1) * 4]);
             for (int d=0; d < depth; d++) {
                 px[d] = (uint8_t) operator()(d,i,j);
             }
@@ -183,6 +179,7 @@ void Image<T>::readFromPNG(const std::string& filename) {
     FILE *fileStream;
     png_byte color_type, bit_depth;
     png_bytep *row_pointers = nullptr;
+    fileStream = fopen("img1.png", "rb");
 
     fileStream = fopen(filename.c_str(), "rb");
     if (fileStream == nullptr) abort();
@@ -208,7 +205,7 @@ void Image<T>::readFromPNG(const std::string& filename) {
     else {
         depth = 3;
     }
-    data = (float*)malloc(sizeof(float) * (width+1) * (height+1) * depth);
+    data = (float*)malloc(sizeof(float) * (width+2) * (height+2) * depth);
 
     if(bit_depth == 16)
         png_set_strip_16(png);
@@ -245,10 +242,10 @@ void Image<T>::readFromPNG(const std::string& filename) {
 
     fclose(fileStream);
 
-    for (int i=1;i<height+1;i++) {
-        png_bytep row = row_pointers[i];
-        for (int j = 1; j < width+1; j++) {
-            png_bytep px = &(row[j * 4]);
+    for (int j=1;j<height+1;j++) {
+        png_bytep row = row_pointers[(j-1)];
+        for (int i = 1; i < width+1; i++) {
+            png_bytep px = &(row[(i-1) * 4]);
             for(int d=0; d < depth; d++){
                 operator()(d,i,j) = px[d];
             }
@@ -272,33 +269,6 @@ void Image<T>::readFromPNG(const std::string& filename) {
 }
 
 
-// Derivative operations
-template<class T>
-void Image<T>::setDerivatives(float h) {
-    auto* fxp = (float*)malloc(sizeof(float) * (width+2) * (height+2) * depth);
-    auto* fyp = (float*)malloc(sizeof(float) * (width+2) * (height+2) * depth);
-    auto* fxxp = (float*)malloc(sizeof(float) * (width+2) * (height+2) * depth);
-    auto* fyyp = (float*)malloc(sizeof(float) * (width+2) * (height+2) * depth);
-    auto* fxyp = (float*)malloc(sizeof(float) * (width+2) * (height+2) * depth);
-    fx.setData(fxp);
-    fy.setData(fyp);
-    fxx.setData(fxxp);
-    fyy.setData(fyyp);
-    fxy.setData(fxyp);
-    for (int d=0;d<depth;d++)
-        for (int i=1;i<width;i++)
-            for (int j=1;j<height;j++){
-                fx(d,i,j) = (0.5* (operator()(d,i+1,j) + operator()(d,i,j)) -
-                        0.5*(operator()(d,i,j)+operator()(d,i-1,j))) / (2*h);
-                fy(d,i,j) = (0.5* (operator()(d,i,j+1) + operator()(d,i,j)) -
-                             0.5*(operator()(d,i,j)+operator()(d,i,j-1))) / (2*h);
-                fxx(d,i,j) = (operator()(d,i-1,j) - 2* operator()(d,i,j) + operator()(d,i+1,j)) / (h*h);
-                fxx(d,i,j) = (operator()(d,i,j+1) - 2* operator()(d,i,j) + operator()(d,i,j+1)) / (h*h);
-                fxy(d,i,j) = (operator()(d,i+1,j+1)-operator()(d,i+1,j-1)-
-                        operator()(d,i-1,j+1)-operator()(d,i-1,j-1))/(4*h*h);
-            }
 
-
-}
 
 #endif //DIFFUSIONINOF_IMAGE_H

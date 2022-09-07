@@ -25,17 +25,23 @@ public:
     void readFromFlo(const std::string &filename);
     void writeToFlo(const std::string &filename);
 
+    // Setters and Getters
+    int getWidth();
+    int getHeight();
     // Utilities
     double EPE(Flow& reference);
-    void setDerivative(float h=1);
+    void setBoundary();
+    void drawFlow(std::string fileName);
+    void vecToRGB(float v1, float v2, float &r, float &g, float &b);
 
     // Operators
     float& operator()(int d, int x, int y);
 
+
 private:
     int width, height;
     float *data{};
-    Derivative fx, fy, fxx, fyy, fxy;
+
 };
 
 

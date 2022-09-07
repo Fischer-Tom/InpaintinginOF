@@ -15,15 +15,15 @@ public:
     // Destructor
     ~Derivative();
 
-    void setData(float *dataPointer);
+    void initData(int w, int h, int d);
 
     // operators
-    inline float& operator() (int d, int x, int y);
-    inline float& operator() (int x, int y);
+    double& operator() (int d, int x, int y);
+    double& operator() (int x, int y);
 
 private:
     int width{},height{},depth{};
-    float *data{};
+    double *data{};
 };
 
 

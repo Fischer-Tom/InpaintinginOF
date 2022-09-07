@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(DiffusioninOF)
 
 set(CMAKE_CXX_STANDARD 14)
-add_executable(${PROJECT_NAME} main.cpp Flow/Flow.cpp Image/Derivative.cpp Diffusion/Homogeneous.cpp)
+add_executable(${PROJECT_NAME} main.cpp Flow/Flow.cpp Image/Derivative.cpp Diffusion/Homogeneous.cpp Diffusion/Homogeneous.h Diffusion/Isotropic.cpp Diffusion/Isotropic.h)
 
 find_package(PNG REQUIRED)
 include_directories(${PNG_INCLUDE_DIR})
@@ -13,3 +13,6 @@ include_directories(${PROJECT_NAME} Image)
 
 set(FLOW_HEADER Flow/Flow.h)
 include_directories(${PROJECT_NAME} Flow)
+
+set(DERIVATIVE_HEADER Image/Derivative.h)
+include_directories(${PROJECT_NAME} Derivative)
